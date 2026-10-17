@@ -70,7 +70,11 @@
 </head>
 
 <body>
+  
 <script>
+  document.getElementById("status").textContent =
+  "Pemeriksaan JavaScript berjalan...";
+  
 window.addEventListener("error", function(e) {
   alert("Error CareBand: " + e.message);
 });
