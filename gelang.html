@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareBand - Mode Gelang</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #eef4ff;
+      color: #183153;
+    }
+
+    .card {
+      max-width: 450px;
+      margin: 30px auto;
+      padding: 25px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 5px 25px #00000012;
+    }
+
+    h1 {
+      color: #1769ff;
+      text-align: center;
+    }
+
+    .status {
+      padding: 14px;
+      background: #f0f4fa;
+      border-radius: 10px;
+      margin: 15px 0;
+      overflow-wrap: anywhere;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #1769ff;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    button:disabled {
+      background: #999;
+    }
+
+    .angka {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .catatan {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>CareBand</h1>
+  <p style="text-align:center">
+    Mode Gelang Pengguna
+  </p>
+
+  <div class="status">
+    <strong>Status perangkat:</strong>
+    <p id="status">Menghubungkan ke Firebase...</p>
+  </div>
+
+  <div class="status">
+    <strong>Latitude:</strong>
+    <p class="angka" id="latitude">Belum tersedia</p>
+
+    <strong>Longitude:</strong>
+    <p class="angka" id="longitude">Belum tersedia</p>
+
+    <strong>Pembaruan terakhir:</strong>
+    <p id="waktu">Belum tersedia</p>
+  </div>
+
+  <button id="mulai" disabled>
+    Aktifkan GPS
+  </button>
+
+  <button id="berhenti" disabled
+    style="background:#64748b">
+    Hentikan GPS
+  </button>
+
+  <p class="catatan">
+    Izinkan akses lokasi saat diminta browser.
+    Halaman ini mengirimkan koordinat GPS perangkat
+    ke Firebase ketika GPS diaktifkan.
+  </p>
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+  import {
+    getAuth,
+    signInAnonymously
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  import {
+    getDatabase,
+    ref,
+    set,
+    update
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+  // GANTI dengan konfigurasi asli dari index.html CareBand.
+  const firebaseConfig = {
+  apiKey: "AIzaSyCl-k_derE0fcAZ7aICJuqxLQoZQQhT2Zs",
+  authDomain: "careband-417ac.firebaseapp.com",
+  databaseURL: "https://careband-417ac-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "careband-417ac",
+  storageBucket: "careband-417ac.firebasestorage.app",
+  messagingSenderId: "414729707642",
+  appId: "1:414729707642:web:3d7cf09e011e1274395bc3"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const statusEl = document.getElementById("status");
+  const mulaiBtn = document.getElementById("mulai");
+  const berhentiBtn = document.getElementById("berhenti");
+
+  let watchId = null;
+  let lokasiPertama = true;
+
+  // Lokasi disimpan di /Locations/user1
+  // agar sesuai dengan Rules yang kita periksa tadi.
+  const lokasiRef = ref(db, "Locations/user1");
+
+  try {
+    await signInAnonymously(auth);
+
+    statusEl.textContent =
+      "Terhubung. Siap mengaktifkan GPS.";
+
+    mulaiBtn.disabled = false;
+
+  } catch (error) {
+    statusEl.textContent =
+      "Gagal terhubung: " + error.message;
+  }
+
+  mulaiBtn.addEventListener("click", () => {
+    if (!("geolocation" in navigator)) {
+      statusEl.textContent =
+        "Browser tidak mendukung GPS.";
+      return;
+    }
+
+    if (watchId !== null) return;
+
+    statusEl.textContent =
+      "Meminta lokasi GPS dari HP...";
+
+    watchId = navigator.geolocation.watchPosition(
+      async (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        document.getElementById("latitude").textContent =
+          latitude.toFixed(6);
+
+        document.getElementById("longitude").textContent =
+          longitude.toFixed(6);
+
+        document.getElementById("waktu").textContent =
+          new Date().toLocaleString("id-ID");
+
+        try {
+          if (lokasiPertama) {
+            await set(lokasiRef, {
+              latitude: latitude,
+              longitude: longitude,
+              akurasi: position.coords.accuracy,
+              waktu: Date.now(),
+              status: "aktif"
+            });
+
+            lokasiPertama = false;
+
+          } else {
+            await update(lokasiRef, {
+              latitude: latitude,
+              longitude: longitude,
+              akurasi: position.coords.accuracy,
+              waktu: Date.now(),
+              status: "aktif"
+            });
+          }
+
+          statusEl.textContent =
+            "GPS aktif. Lokasi berhasil dikirim ke Firebase.";
+
+        } catch (error) {
+          statusEl.textContent =
+            "Gagal mengirim lokasi: " + error.message;
+        }
+      },
+
+      (error) => {
+        statusEl.textContent =
+          "GPS gagal: " + error.message;
+
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+
+        mulaiBtn.disabled = false;
+        berhentiBtn.disabled = true;
+      },
+
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 20000
+      }
+    );
+
+    mulaiBtn.disabled = true;
+    berhentiBtn.disabled = false;
+    statusEl.textContent = "Sedang mencari lokasi GPS...";
+  });
+
+  berhentiBtn.addEventListener("click", async () => {
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+
+    mulaiBtn.disabled = false;
+    berhentiBtn.disabled = true;
+
+    try {
+      await update(lokasiRef, {
+        status: "berhenti",
+        waktu: Date.now()
+      });
+
+      statusEl.textContent =
+        "Pemantauan GPS dihentikan.";
+
+    } catch (error) {
+      statusEl.textContent =
+        "GPS berhenti, tetapi status gagal diperbarui: "
