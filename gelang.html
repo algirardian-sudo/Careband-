@@ -80,6 +80,18 @@
   <div class="status">
     <strong>Status perangkat:</strong>
     <p id="status">Menghubungkan ke Firebase...</p>
+    <script>
+window.addEventListener("error", function(e) {
+  document.getElementById("status").textContent =
+    "Error: " + (e.message || "Gagal memuat JavaScript Firebase");
+}, true);
+
+window.addEventListener("unhandledrejection", function(e) {
+  document.getElementById("status").textContent =
+    "Error Firebase: " +
+    (e.reason?.message || String(e.reason));
+});
+</script>
   </div>
 
   <div class="status">
