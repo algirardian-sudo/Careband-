@@ -70,20 +70,6 @@
 </head>
 
 <body>
-  
-<script>
-  document.getElementById("status").textContent =
-  "Pemeriksaan JavaScript berjalan...";
-  
-window.addEventListener("error", function(e) {
-  alert("Error CareBand: " + e.message);
-});
-
-window.addEventListener("unhandledrejection", function(e) {
-  alert("Error Firebase: " +
-    (e.reason?.message || String(e.reason)));
-});
-</script>
 
 <div class="card">
   <h1>CareBand</h1>
@@ -157,6 +143,8 @@ window.addEventListener("unhandledrejection", function(e) {
   const statusEl = document.getElementById("status");
   const mulaiBtn = document.getElementById("mulai");
   const berhentiBtn = document.getElementById("berhenti");
+
+  statusEl.textContent = "JavaScript berjalan, mencoba login...";
 
   let watchId = null;
   let lokasiPertama = true;
