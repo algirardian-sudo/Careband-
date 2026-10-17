@@ -70,6 +70,16 @@
 </head>
 
 <body>
+<script>
+window.addEventListener("error", function(e) {
+  alert("Error CareBand: " + e.message);
+});
+
+window.addEventListener("unhandledrejection", function(e) {
+  alert("Error Firebase: " +
+    (e.reason?.message || String(e.reason)));
+});
+</script>
 
 <div class="card">
   <h1>CareBand</h1>
