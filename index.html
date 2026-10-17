@@ -2,245 +2,244 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CareBand GPS</title>
-
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareBand - Sistem Pemantauan</title>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f1f5f9;
-      color: #172033;
-    }
-
-    header {
-      background: #075e54;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #071426;
       color: white;
-      padding: 22px 16px;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 28px;
+      background: #10243d;
+      border: 1px solid #294663;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px #0005;
+    }
+
+    .logo {
+      width: 65px;
+      height: 65px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #00d6b2;
+      color: #071426;
+      font-size: 30px;
+      font-weight: bold;
+      border-radius: 18px;
+    }
+
+    h1 {
       text-align: center;
+      margin-bottom: 8px;
     }
 
-    header h1 {
-      margin: 0 0 6px;
-      font-size: 27px;
+    .subtitle {
+      text-align: center;
+      color: #a9bed4;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 25px;
     }
 
-    header p {
-      margin: 0;
+    label {
+      display: block;
+      margin: 16px 0 8px;
       font-size: 14px;
     }
 
-    main {
-      max-width: 760px;
-      margin: auto;
-      padding: 16px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 15px;
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 3px 12px #0000000c;
-    }
-
-    h2 { margin-top: 0; }
-
-    input, button {
+    input {
       width: 100%;
-      padding: 13px;
-      margin: 6px 0;
-      border-radius: 9px;
+      padding: 14px;
+      border: 1px solid #36536f;
+      border-radius: 10px;
+      background: #071426;
+      color: white;
       font-size: 15px;
     }
 
-    input {
-      border: 1px solid #cbd5e1;
-    }
-
     button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 18px;
       border: none;
-      background: #087f70;
-      color: white;
+      border-radius: 10px;
+      background: #00d6b2;
+      color: #071426;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
     }
 
-    button.secondary {
-      background: #334155;
-    }
-
     button:disabled {
-      opacity: .6;
+      opacity: 0.6;
     }
 
-    #map {
-      height: 350px;
-      border-radius: 12px;
-      overflow: hidden;
+    .secondary {
+      background: transparent;
+      color: #8de8dc;
+      border: 1px solid #36536f;
+      margin-top: 10px;
     }
 
-    .status {
+    .hidden {
+      display: none !important;
+    }
+
+    #message {
+      margin-top: 18px;
       padding: 12px;
-      border-radius: 9px;
-      background: #ecfdf5;
-      color: #065f46;
-      margin: 10px 0;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.6;
       overflow-wrap: anywhere;
     }
 
-    .muted {
-      font-size: 13px;
-      color: #64748b;
-      line-height: 1.6;
-    }
-
-    .hidden { display: none; }
-
-    .value {
-      font-size: 19px;
-      font-weight: bold;
-    }
-
-    footer {
+    .status {
+      color: #8de8dc;
       text-align: center;
-      padding: 18px;
-      color: #64748b;
+      font-size: 13px;
+    }
+
+    .footer {
+      margin-top: 25px;
+      color: #718aa5;
+      text-align: center;
       font-size: 12px;
     }
   </style>
 </head>
 
 <body>
+  <main class="container">
 
-<header>
-  <h1>📍 CareBand</h1>
-  <p>Pemantauan lokasi pengguna secara langsung</p>
-</header>
+    <div class="logo">C</div>
 
-<main>
+    <h1>CareBand</h1>
 
-  <section class="card" id="loginCard">
-    <h2>🔐 Login CareBand</h2>
-
-    <p class="muted">
-      Gunakan email dan password yang telah dibuat
-      pada Firebase Authentication.
+    <p class="subtitle">
+      Sistem Pemantauan dan Perlindungan Pengguna
     </p>
 
-    <input
-      id="email"
-      type="email"
-      placeholder="Alamat email"
-      autocomplete="username"
-    >
+    <section id="loginSection">
+      <p class="status">LOGIN PETUGAS</p>
 
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-      autocomplete="current-password"
-    >
+      <form id="loginForm">
+        <label for="email">Email</label>
 
-    <button id="loginBtn" onclick="login()">Masuk</button>
+        <input
+          id="email"
+          type="email"
+          placeholder="Masukkan email"
+          autocomplete="username"
+          required
+        >
 
-    <div id="loginStatus" class="status">
-      Silakan login menggunakan akun CareBand.
-    </div>
-  </section>
+        <label for="password">Password</label>
 
-  <section class="card hidden" id="appCard">
-    <h2 id="roleTitle">CareBand</h2>
+        <input
+          id="password"
+          type="password"
+          placeholder="Masukkan password CareBand"
+          autocomplete="current-password"
+          required
+        >
 
-    <div class="status" id="appStatus">
-      Menyiapkan aplikasi...
-    </div>
-
-    <div id="wearerPanel" class="hidden">
-      <h3>📱 Mode Pemakai</h3>
-
-      <p class="muted">
-        Izinkan akses lokasi pada browser agar HP ini
-        dapat mengirim koordinat GPS ke Firebase.
-      </p>
-
-      <button id="startBtn" onclick="startTracking()">
-        Mulai Mengirim Lokasi
-      </button>
+        <button id="loginButton" type="submit">
+          Login
+        </button>
+      </form>
 
       <button
+        id="resetButton"
         class="secondary"
-        id="stopBtn"
-        onclick="stopTracking()"
-        disabled
+        type="button"
       >
-        Hentikan Pengiriman Lokasi
+        Lupa Password?
       </button>
+    </section>
 
-      <p>Latitude:</p>
-      <div class="value" id="latValue">Belum tersedia</div>
+    <section id="dashboard" class="hidden">
+      <p class="status">LOGIN BERHASIL</p>
 
-      <p>Longitude:</p>
-      <div class="value" id="lngValue">Belum tersedia</div>
+      <h2>Dashboard CareBand</h2>
 
-      <p>Akurasi GPS:</p>
-      <div class="value" id="accuracyValue">Belum tersedia</div>
-    </div>
+      <p>Akun petugas:</p>
+      <p id="userEmail"></p>
 
-    <div id="familyPanel" class="hidden">
-      <h3>👨‍👩‍👧 Mode Keluarga</h3>
+      <hr>
 
-      <p class="muted">
-        Peta menampilkan lokasi terakhir yang berhasil
-        diterima dari HP pemakai.
+      <h3>Status Pemantauan</h3>
+
+      <p>
+        🛰️ GPS: Belum terhubung
       </p>
 
-      <div id="locationStatus" class="status">
-        Menunggu data lokasi...
-      </div>
+      <p>
+        ❤️ Detak jantung: Belum terhubung
+      </p>
 
-      <p>Terakhir diperbarui:</p>
-      <div class="value" id="timeValue">Belum tersedia</div>
+      <p>
+        📡 Radar: Menunggu koneksi perangkat
+      </p>
+
+      <p style="color:#a9bed4;font-size:13px">
+        Dashboard ini merupakan tahap awal.
+        GPS dan sensor detak jantung belum dihubungkan.
+      </p>
+
+      <button
+        id="logoutButton"
+        class="secondary"
+        type="button"
+      >
+        Keluar
+      </button>
+    </section>
+
+    <div id="message" class="hidden" role="status"></div>
+
+    <div class="footer">
+      CAREBAND • PROTOTIPE PENGEMBANGAN
     </div>
 
-    <div id="map"></div>
+  </main>
 
-    <button class="secondary" onclick="logout()">
-      Keluar
-    </button>
-  </section>
+  <script type="module">
 
-  <section class="card">
-    <h3>ℹ️ Informasi CareBand</h3>
-    <p class="muted">
-      Versi uji coba menggunakan GPS HP, Firebase Realtime
-      Database, dan OpenStreetMap. Lokasi hanya diperbarui
-      ketika perangkat pemakai berhasil mengirim data.
-      Aplikasi ini belum memantau detak jantung smartwatch.
-    </p>
-  </section>
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-</main>
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-<footer>
-  CareBand — Prototipe pemantauan lokasi
-</footer>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    // GUNAKAN KONFIGURASI ASLI PROYEK FIREBASE MILIKMU.
 
-<script>
-  // Konfigurasi Firebase milik proyek CareBand.
-  const firebaseConfig = {
+    const firebaseConfig = {
   apiKey: "AIzaSyCl-k_derE0fcAZ7aICJuqxLQoZQQhT2Zs",
   authDomain: "careband-417ac.firebaseapp.com",
   databaseURL: "https://careband-417ac-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -250,100 +249,177 @@
   appId: "1:414729707642:web:3d7cf09e011e1274395bc3"
 };
 
-  firebase.initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  const auth = firebase.auth();
-  const db = firebase.database();
+    const loginSection =
+      document.getElementById("loginSection");
 
-  // UID akun yang telah dibuat di Firebase Authentication.
-  const WEARER_UID = "bHYqCWQlHXNku6LUisQxg6TNqlV2";
-  const FAMILY_UID = "wE9uBg5Ul3b3fFuNEs5k6qZd12N2";
+    const dashboard =
+      document.getElementById("dashboard");
 
-  let currentUser = null;
-  let map = null;
-  let marker = null;
-  let accuracyCircle = null;
-  let gpsWatchId = null;
-  let locationRef = null;
-  let locationListener = null;
-  let lastWriteTime = 0;
+    const loginForm =
+      document.getElementById("loginForm");
 
-  function showStatus(elementId, message) {
-    document.getElementById(elementId).textContent = message;
-  }
+    const loginButton =
+      document.getElementById("loginButton");
 
-  function setupMap() {
-    if (map) {
-      setTimeout(() => map.invalidateSize(), 100);
-      return;
+    const resetButton =
+      document.getElementById("resetButton");
+
+    const logoutButton =
+      document.getElementById("logoutButton");
+
+    const message =
+      document.getElementById("message");
+
+
+    function showMessage(text, error = false) {
+      message.textContent = text;
+      message.classList.remove("hidden");
+
+      message.style.background = error
+        ? "#51252d"
+        : "#123f3b";
+
+      message.style.color = error
+        ? "#ffc6ce"
+        : "#a7fff0";
     }
 
-    map = L.map("map").setView([-2.5, 118], 5);
 
-    L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
+    function explainError(error) {
+      const code = error.code || "";
+
+      if (code.includes("invalid-credential")) {
+        return "Email atau password salah. Periksa kembali akunmu.";
       }
-    ).addTo(map);
-  }
 
-  function clearLocationListener() {
-    if (locationRef && locationListener) {
-      locationRef.off("value", locationListener);
-    }
-
-    locationRef = null;
-    locationListener = null;
-  }
-
-  async function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const button = document.getElementById("loginBtn");
-
-    if (!email || !password) {
-      showStatus("loginStatus", "Isi email dan password terlebih dahulu.");
-      return;
-    }
-
-    button.disabled = true;
-    showStatus("loginStatus", "Sedang masuk...");
-
-    try {
-      await auth.signInWithEmailAndPassword(email, password);
-    } catch (error) {
-      showStatus("loginStatus", "Login gagal: " + error.message);
-    } finally {
-      button.disabled = false;
-    }
-  }
-
-  auth.onAuthStateChanged(user => {
-    stopTracking();
-    clearLocationListener();
-
-    currentUser = user;
-
-    document.getElementById("loginCard")
-      .classList.toggle("hidden", !!user);
-
-    document.getElementById("appCard")
-      .classList.toggle("hidden", !user);
-
-    if (!user) {
-      if (map) {
-        map.remove();
-        map = null;
-        marker = null;
-        accuracyCircle = null;
+      if (code.includes("user-not-found")) {
+        return "Akun tidak ditemukan di Firebase Authentication.";
       }
-      return;
+
+      if (code.includes("wrong-password")) {
+        return "Password salah. Gunakan fitur Lupa Password.";
+      }
+
+      if (code.includes("invalid-email")) {
+        return "Format email tidak valid.";
+      }
+
+      if (code.includes("too-many-requests")) {
+        return "Terlalu banyak percobaan. Tunggu sebentar.";
+      }
+
+      if (code.includes("network-request-failed")) {
+        return "Koneksi internet bermasalah.";
+      }
+
+      if (code.includes("operation-not-allowed")) {
+        return "Email/Password belum aktif di Firebase.";
+      }
+
+      if (code.includes("api-key-not-valid")) {
+        return "API key Firebase tidak valid. Periksa konfigurasi.";
+      }
+
+      return "Login gagal: " +
+        (error.message || code || "Kesalahan tidak diketahui");
     }
 
-    document.getElementById("map").innerHTML = "";
-    marker = null;
-    accuracyCircle = null;
 
-    setup
+    loginForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+      loginButton.disabled = true;
+      loginButton.textContent = "Memeriksa akun...";
+
+      try {
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        showMessage("Login berhasil!");
+
+      } catch (error) {
+        console.error("Login CareBand gagal:", error);
+
+        showMessage(explainError(error), true);
+
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = "Login";
+      }
+    });
+
+
+    resetButton.addEventListener("click", async function() {
+      const email =
+        document.getElementById("email").value.trim();
+
+      if (!email) {
+        showMessage(
+          "Masukkan email terlebih dahulu.",
+          true
+        );
+        return;
+      }
+
+      resetButton.disabled = true;
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+
+        showMessage(
+          "Jika akun memenuhi syarat, tautan pemulihan password akan dikirim. Periksa email dan folder spam."
+        );
+
+      } catch (error) {
+        console.error("Pemulihan password gagal:", error);
+
+        showMessage(explainError(error), true);
+
+      } finally {
+        resetButton.disabled = false;
+      }
+    });
+
+
+    onAuthStateChanged(auth, function(user) {
+      if (user) {
+        loginSection.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+
+        document.getElementById("userEmail").textContent =
+          user.email || "Pengguna CareBand";
+
+        message.classList.add("hidden");
+
+      } else {
+        loginSection.classList.remove("hidden");
+        dashboard.classList.add("hidden");
+      }
+    });
+
+
+    logoutButton.addEventListener("click", async function() {
+      try {
+        await signOut(auth);
+        showMessage("Kamu sudah keluar dari CareBand.");
+
+      } catch (error) {
+        showMessage(explainError(error), true);
+      }
+    });
+
+  </script>
+</body>
+  </html>
