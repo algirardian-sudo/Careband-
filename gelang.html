@@ -179,6 +179,15 @@ small {
   <div class="status" id="monitorStatus">
     Menunggu data lokasi...
   </div>
+  <div class="status" id="monitorStatus">
+  Menunggu data lokasi...
+</div>
+
+<div class="status" id="peringatanSOS">
+  🟢 Tidak ada keadaan darurat.
+</div>
+
+<div id="map"></div>
 
   <div id="map"></div>
 
@@ -278,8 +287,9 @@ function pilihPetugas() {
   setTimeout(() => {
     buatPeta();
     mulaiMonitoring();
+    pantauSOS();
   }, 300);
-}
+  }
 
 function mulaiGPS() {
 
@@ -483,6 +493,33 @@ function mulaiMonitoring() {
   });
 
 }
+  function pantauSOS() {
+
+  if (!db) return;
+
+  db.ref("careband/demo/sos").on("value", snapshot => {
+
+    const data = snapshot.val();
+    const statusSOS = document.getElementById("peringatanSOS");
+
+    if (!data || data.status !== "DARURAT") {
+      statusSOS.innerText =
+        "🟢 Tidak ada keadaan darurat.";
+      return;
+    }
+
+    statusSOS.innerText =
+      "🚨 DARURAT! " + data.pesan +
+      "\nWaktu: " +
+      new Date(data.waktu).toLocaleString("id-ID");
+
+  }, error => {
+
+    statusSOS.innerText =
+      "Gagal menerima SOS: " + error.message;
+
+  });
+  }
 
 function tesBuzzer() {
 
