@@ -207,6 +207,13 @@ small {
 <div class="status" id="peringatanSOS">
   🟢 Tidak ada keadaan darurat.
 </div>
+  <hr>
+
+<h3>❤️ Detak Jantung Pengguna</h3>
+
+<div class="status" id="heartMonitor">
+  Menunggu data detak jantung...
+</div>
 
 <div id="map"></div>
 
@@ -309,6 +316,7 @@ function pilihPetugas() {
     buatPeta();
     mulaiMonitoring();
     pantauSOS();
+    pantauHeartRate();
   }, 300);
   }
 
@@ -572,6 +580,33 @@ function mulaiMonitoring() {
 
     statusSOS.innerText =
       "Gagal menerima SOS: " + error.message;
+
+  });
+  }
+  function pantauHeartRate() {
+
+  if (!db) return;
+
+  db.ref("careband/demo/heartRate").on("value", snapshot => {
+
+    const data = snapshot.val();
+    const tampilan = document.getElementById("heartMonitor");
+
+    if (!data) {
+      tampilan.innerText =
+        "Menunggu data detak jantung...";
+      return;
+    }
+
+    tampilan.innerText =
+      "❤️ Detak Jantung: " + data.bpm + " BPM" +
+      "\nWaktu pembaruan: " +
+      new Date(data.waktu).toLocaleString("id-ID");
+
+  }, error => {
+
+    tampilan.innerText =
+      "Gagal menerima data: " + error.message;
 
   });
   }
