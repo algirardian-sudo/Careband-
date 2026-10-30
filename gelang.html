@@ -1,283 +1,204 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CareBand - Mode Gelang</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareBand - Sistem Pemantauan</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background: #eef4ff;
-      color: #183153;
-    }
-
-    .card {
-      max-width: 450px;
-      margin: 30px auto;
-      padding: 25px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 5px 25px #00000012;
-    }
-
-    h1 {
-      color: #1769ff;
-      text-align: center;
-    }
-
-    .status {
-      padding: 14px;
-      background: #f0f4fa;
-      border-radius: 10px;
-      margin: 15px 0;
-      overflow-wrap: anywhere;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      background: #1769ff;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    button:disabled {
-      background: #999;
-    }
-
-    .angka {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .catatan {
-      color: #64748b;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-  </style>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f6f8;
+  color: #18343c;
+}
+header {
+  background: #087f8c;
+  color: white;
+  padding: 22px;
+  text-align: center;
+}
+.container {
+  max-width: 650px;
+  margin: 20px auto;
+  padding: 15px;
+}
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 12px #0001;
+}
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 13px;
+  background: #087f8c;
+  color: white;
+  font-size: 15px;
+  width: 100%;
+  margin-top: 10px;
+}
+button.secondary {
+  background: #526b75;
+}
+.status {
+  padding: 12px;
+  border-radius: 8px;
+  background: #e5f5f4;
+  margin: 10px 0;
+}
+.value {
+  font-size: 26px;
+  font-weight: bold;
+  color: #087f8c;
+}
+#map {
+  height: 330px;
+  border-radius: 10px;
+}
+.hidden {
+  display: none;
+}
+.led {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #aaa;
+  margin-right: 7px;
+}
+</style>
 </head>
 
 <body>
 
-<div class="card">
+<header>
   <h1>CareBand</h1>
-  <p style="text-align:center">
-    Mode Gelang Pengguna
-  </p>
+  <p>Sistem Pemantauan dan Perlindungan Pengguna</p>
+</header>
 
-  <div class="status">
-    <strong>Status perangkat:</strong>
-    <p id="status">Menghubungkan ke Firebase...</p>
-    
-    <script>
-window.addEventListener("error", function(e) {
-  document.getElementById("status").textContent =
-    "Error: " + (e.message || "Gagal memuat JavaScript Firebase");
-}, true);
+<div class="container">
 
-window.addEventListener("unhandledrejection", function(e) {
-  document.getElementById("status").textContent =
-    "Error Firebase: " +
-    (e.reason?.message || String(e.reason));
-});
-</script>
-    
-  </div>
-
-  <div class="status">
-    <strong>Latitude:</strong>
-    <p class="angka" id="latitude">Belum tersedia</p>
-
-    <strong>Longitude:</strong>
-    <p class="angka" id="longitude">Belum tersedia</p>
-
-    <strong>Pembaruan terakhir:</strong>
-    <p id="waktu">Belum tersedia</p>
-  </div>
-
-  <button id="mulai" disabled>
-    Aktifkan GPS
-  </button>
-
-  <button id="berhenti" disabled
-    style="background:#64748b">
-    Hentikan GPS
-  </button>
-
-  <p class="catatan">
-    Izinkan akses lokasi saat diminta browser.
-    Halaman ini mengirimkan koordinat GPS perangkat
-    ke Firebase ketika GPS diaktifkan.
-  </p>
+<div class="card" id="pilihan">
+  <h2>Pilih Mode</h2>
+  <button onclick="bukaPengguna()">Mode Pengguna</button>
+  <button class="secondary" onclick="bukaPetugas()">Mode Petugas</button>
 </div>
 
-<script type="module">
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+<div class="card hidden" id="pengguna">
+  <h2>Mode Pengguna</h2>
+  <div class="status" id="statusGPS">
+    GPS belum diaktifkan.
+  </div>
 
-  import {
-    getAuth,
-    signInAnonymously
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  <p>Lokasi GPS:</p>
+  <div id="koordinat">Belum tersedia</div>
 
-  import {
-    getDatabase,
-    ref,
-    set,
-    update
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  <button onclick="mulaiGPS()">Aktifkan GPS Saya</button>
+  <button class="secondary" onclick="hentikanGPS()">Hentikan GPS</button>
 
+  <hr>
 
-  const firebaseConfig = {
-  apiKey: "AIzaSyCl-k_derE0fcAZ7aICJuqxLQoZQQhT2Zs",
-  authDomain: "careband-417ac.firebaseapp.com",
-  databaseURL: "https://careband-417ac-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "careband-417ac",
-  storageBucket: "careband-417ac.firebasestorage.app",
-  messagingSenderId: "414729707642",
-  appId: "1:414729707642:web:3d7cf09e011e1274395bc3"
+  <h3>Detak Jantung</h3>
+  <div class="value">78 BPM</div>
+  <small>Data contoh — belum berasal dari sensor fisik.</small>
+
+  <hr>
+
+  <h3>Indikator LED</h3>
+  <p><span class="led" style="background:#19a85b"></span>Indikator normal (tampilan demo)</p>
+  <p><span class="led" style="background:#e74c3c"></span>Indikator peringatan (tampilan demo)</p>
+
+  <h3>Buzzer</h3>
+  <button class="secondary" onclick="ujiBuzzer()">Uji Bunyi Buzzer Demo</button>
+
+  <h3>Panel Surya</h3>
+  <p>Panel surya dirancang sebagai sumber energi pendukung gelang CareBand.</p>
+  <small>Ilustrasi konsep, belum terhubung ke panel fisik.</small>
+</div>
+
+<div class="card hidden" id="petugas">
+  <h2>Mode Pemantauan Petugas</h2>
+
+  <div class="status" id="statusPantau">
+    Menunggu data lokasi pengguna...
+  </div>
+
+  <div id="map"></div>
+
+  <h3>Informasi Lokasi</h3>
+  <div id="lokasiPetugas">Belum ada data lokasi.</div>
+
+  <h3>Detak Jantung</h3>
+  <div class="value">78 BPM</div>
+  <small>Data contoh, bukan hasil pembacaan sensor.</small>
+
+  <button class="secondary" onclick="kembali()">Kembali</button>
+</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAb6oGa4g_mf_2GUF6XIwSL2aGg58ntMMw",
+  authDomain: "ragaswara-12e71.firebaseapp.com",
+  databaseURL: "https://ragaswara-12e71-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "ragaswara-12e71",
+  storageBucket: "ragaswara-12e71.firebasestorage.app",
+  messagingSenderId: "917122755551",
+  appId: "1:917122755551:web:310c28ca47e7abe659f26a"
 };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+firebase.initializeApp(firebaseConfig);
 
-  const statusEl = document.getElementById("status");
-  const mulaiBtn = document.getElementById("mulai");
-  const berhentiBtn = document.getElementById("berhenti");
+const auth = firebase.auth();
+const db = firebase.database();
+const lokasiRef = db.ref("careband/demo/latest");
 
-  statusEl.textContent = "JavaScript berjalan, mencoba login...";
+let watchID = null;
+let map = null;
+let marker = null;
 
-  let watchId = null;
-  let lokasiPertama = true;
+auth.signInAnonymously()
+.catch(error => alert("Koneksi Firebase gagal: " + error.message));
 
-  // Lokasi disimpan di /Locations/user1
-  // agar sesuai dengan Rules yang kita periksa tadi.
-  const lokasiRef = ref(db, "Locations/user1");
+function bukaPengguna() {
+  document.getElementById("pilihan").classList.add("hidden");
+  document.getElementById("pengguna").classList.remove("hidden");
+}
 
-  try {
-    await signInAnonymously(auth);
+function bukaPetugas() {
+  document.getElementById("pilihan").classList.add("hidden");
+  document.getElementById("petugas").classList.remove("hidden");
 
-    statusEl.textContent =
-      "Terhubung. Siap mengaktifkan GPS.";
-
-    mulaiBtn.disabled = false;
-
-  } catch (error) {
-    statusEl.textContent =
-      "Gagal terhubung: " + error.message;
-  }
-
-  mulaiBtn.addEventListener("click", () => {
-    if (!("geolocation" in navigator)) {
-      statusEl.textContent =
-        "Browser tidak mendukung GPS.";
-      return;
+  setTimeout(() => {
+    if (!map) {
+      map = L.map("map").setView([-6.9, 107.6], 13);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap"
+      }).addTo(map);
     }
+    map.invalidateSize();
+  }, 300);
 
-    if (watchId !== null) return;
+  pantauLokasi();
+}
 
-    statusEl.textContent =
-      "Meminta lokasi GPS dari HP...";
+function kembali() {
+  document.getElementById("petugas").classList.add("hidden");
+  document.getElementById("pengguna").classList.add("hidden");
+  document.getElementById("pilihan").classList.remove("hidden");
+}
 
-    watchId = navigator.geolocation.watchPosition(
-      async (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-
-        document.getElementById("latitude").textContent =
-          latitude.toFixed(6);
-
-        document.getElementById("longitude").textContent =
-          longitude.toFixed(6);
-
-        document.getElementById("waktu").textContent =
-          new Date().toLocaleString("id-ID");
-
-        try {
-          if (lokasiPertama) {
-            await set(lokasiRef, {
-              latitude: latitude,
-              longitude: longitude,
-              akurasi: position.coords.accuracy,
-              waktu: Date.now(),
-              status: "aktif"
-            });
-
-            lokasiPertama = false;
-
-          } else {
-            await update(lokasiRef, {
-              latitude: latitude,
-              longitude: longitude,
-              akurasi: position.coords.accuracy,
-              waktu: Date.now(),
-              status: "aktif"
-            });
-          }
-
-          statusEl.textContent =
-            "GPS aktif. Lokasi berhasil dikirim ke Firebase.";
-
-        } catch (error) {
-          statusEl.textContent =
-            "Gagal mengirim lokasi: " + error.message;
-        }
-      },
-
-      (error) => {
-        statusEl.textContent =
-          "GPS gagal: " + error.message;
-
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-
-        mulaiBtn.disabled = false;
-        berhentiBtn.disabled = true;
-      },
-
-      {
-        enableHighAccuracy: true,
-        maximumAge: 5000,
-        timeout: 20000
-      }
-    );
-
-    mulaiBtn.disabled = true;
-    berhentiBtn.disabled = false;
-    statusEl.textContent = "Sedang mencari lokasi GPS...";
-  });
-
-  berhentiBtn.addEventListener("click", async () => {
-    if (watchId !== null) {
-      navigator.geolocation.clearWatch(watchId);
-      watchId = null;
-    }
-
-    mulaiBtn.disabled = false;
-    berhentiBtn.disabled = true;
-
-    try {
-      await update(lokasiRef, {
-        status: "berhenti",
-        waktu: Date.now()
-      });
-
-      statusEl.textContent =
-        "Pemantauan GPS dihentikan.";
-
-    } catch (error) {
-      statusEl.textContent =
-        "GPS berhenti, tetapi status gagal diperbarui: "
+function mulaiGPS() {
+  if (!navigator.geolocation
