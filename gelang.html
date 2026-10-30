@@ -167,6 +167,27 @@ small {
   <div class="status" id="sosStatus">
     Belum ada permintaan bantuan.
   </div>
+  <hr>
+
+<h3>❤️ Pemantauan Detak Jantung</h3>
+
+<p>Masukkan angka detak jantung pengguna (BPM).</p>
+
+<input
+  type="number"
+  id="detakJantung"
+  placeholder="Contoh: 80"
+  min="30"
+  max="220"
+>
+
+<button onclick="kirimDetakJantung()">
+  KIRIM DATA DETAK JANTUNG
+</button>
+
+<div class="status" id="heartStatus">
+  Belum ada data detak jantung.
+</div>
 </div>
 <div id="petugas" class="card hidden">
   <h3>Mode Petugas</h3>
@@ -406,6 +427,40 @@ function berhentiGPS() {
     .catch(error => {
       document.getElementById("sosStatus").innerText =
         "Gagal mengirim SOS: " + error.message;
+    });
+  }
+  function kirimDetakJantung() {
+
+  if (!db) {
+    document.getElementById("heartStatus").innerText =
+      "Firebase belum siap.";
+    return;
+  }
+
+  const bpm = Number(
+    document.getElementById("detakJantung").value
+  );
+
+  if (!Number.isInteger(bpm) || bpm < 30 || bpm > 220) {
+    document.getElementById("heartStatus").innerText =
+      "Masukkan angka BPM antara 30 sampai 220.";
+    return;
+  }
+
+  const dataHeart = {
+    bpm: bpm,
+    waktu: Date.now()
+  };
+
+  db.ref("careband/demo/heartRate")
+    .set(dataHeart)
+    .then(() => {
+      document.getElementById("heartStatus").innerText =
+        "Data berhasil dikirim: " + bpm + " BPM.";
+    })
+    .catch(error => {
+      document.getElementById("heartStatus").innerText =
+        "Gagal mengirim data: " + error.message;
     });
   }
 
