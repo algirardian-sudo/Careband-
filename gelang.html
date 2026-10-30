@@ -573,23 +573,53 @@ function mulaiMonitoring() {
 }
   let sosAktif = false;
 let bpmTidakNormal = false;
+  let bpmTerakhir = null; 
 
 function perbaruiLED() {
+
   const status = document.getElementById("ledStatus");
   const hijau = document.getElementById("ledHijau");
   const merah = document.getElementById("ledMerah");
 
-  if (!status || !hijau || !merah) return;
+  const ledRingkasan = document.getElementById("led");
+  const detakRingkasan = document.getElementById("detak");
 
-  if (sosAktif || bpmTidakNormal) {
-    status.innerText = "Status indikator: PERINGATAN";
-    hijau.innerText = "MATI";
-    merah.innerText = "AKTIF";
+  const peringatan = sosAktif || bpmTidakNormal;
+
+  if (peringatan) {
+
+    if (status)
+      status.innerText = "Status indikator: PERINGATAN";
+
+    if (hijau)
+      hijau.innerText = "MATI";
+
+    if (merah)
+      merah.innerText = "AKTIF";
+
+    if (ledRingkasan)
+      ledRingkasan.innerText = "Merah";
+
   } else {
-    status.innerText = "Status indikator: Normal";
-    hijau.innerText = "AKTIF";
-    merah.innerText = "MATI";
+
+    if (status)
+      status.innerText = "Status indikator: Normal";
+
+    if (hijau)
+      hijau.innerText = "AKTIF";
+
+    if (merah)
+      merah.innerText = "MATI";
+
+    if (ledRingkasan)
+      ledRingkasan.innerText = "Hijau";
+
   }
+
+  if (detakRingkasan && bpmTerakhir !== null) {
+    detakRingkasan.innerText = bpmTerakhir + " BPM";
+  }
+
   }
   function pantauSOS() {
 
@@ -642,7 +672,7 @@ function perbaruiLED() {
     }
 
     const bpm = Number(data.bpm);
-
+    bpmTerakhir = bpm;
     bpmTidakNormal = bpm < 50 || bpm > 120;
 
     if (bpm < 50) {
