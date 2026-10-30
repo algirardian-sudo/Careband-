@@ -571,6 +571,26 @@ function mulaiMonitoring() {
   });
 
 }
+  let sosAktif = false;
+let bpmTidakNormal = false;
+
+function perbaruiLED() {
+  const status = document.getElementById("ledStatus");
+  const hijau = document.getElementById("ledHijau");
+  const merah = document.getElementById("ledMerah");
+
+  if (!status || !hijau || !merah) return;
+
+  if (sosAktif || bpmTidakNormal) {
+    status.innerText = "Status indikator: PERINGATAN";
+    hijau.innerText = "MATI";
+    merah.innerText = "AKTIF";
+  } else {
+    status.innerText = "Status indikator: Normal";
+    hijau.innerText = "AKTIF";
+    merah.innerText = "MATI";
+  }
+  }
   function pantauSOS() {
 
   if (!db) return;
@@ -580,9 +600,12 @@ function mulaiMonitoring() {
     const data = snapshot.val();
     const statusSOS = document.getElementById("peringatanSOS");
 
-    if (!data || data.status !== "DARURAT") {
+    sosAktif = !!(data && data.status === "DARURAT");
+
+    if (!sosAktif) {
       statusSOS.innerText =
         "🟢 Tidak ada keadaan darurat.";
+      perbaruiLED();
       return;
     }
 
@@ -590,6 +613,8 @@ function mulaiMonitoring() {
       "🚨 DARURAT! " + data.pesan +
       "\nWaktu: " +
       new Date(data.waktu).toLocaleString("id-ID");
+
+    perbaruiLED();
 
   }, error => {
 
@@ -610,10 +635,15 @@ function mulaiMonitoring() {
     if (!data) {
       tampilan.innerText =
         "Menunggu data detak jantung...";
+
+      bpmTidakNormal = false;
+      perbaruiLED();
       return;
     }
 
     const bpm = Number(data.bpm);
+
+    bpmTidakNormal = bpm < 50 || bpm > 120;
 
     if (bpm < 50) {
 
@@ -638,6 +668,8 @@ function mulaiMonitoring() {
     tampilan.innerText +=
       "\nWaktu pembaruan: " +
       new Date(data.waktu).toLocaleString("id-ID");
+
+    perbaruiLED();
 
   }, error => {
 
