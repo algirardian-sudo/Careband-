@@ -159,8 +159,15 @@ small {
   <div class="status" id="koordinat">
     Koordinat belum tersedia.
   </div>
-</div>
 
+  <button class="danger" onclick="kirimSOS()">
+    🚨 KIRIM SOS / DARURAT
+  </button>
+
+  <div class="status" id="sosStatus">
+    Belum ada permintaan bantuan.
+  </div>
+</div>
 <div id="petugas" class="card hidden">
   <h3>Mode Petugas</h3>
 
@@ -366,6 +373,31 @@ function berhentiGPS() {
     "Pengiriman lokasi dihentikan.";
 
 }
+  function kirimSOS() {
+
+  if (!db) {
+    document.getElementById("sosStatus").innerText =
+      "Firebase belum siap.";
+    return;
+  }
+
+  const dataSOS = {
+    status: "DARURAT",
+    pesan: "Pengguna membutuhkan bantuan!",
+    waktu: Date.now()
+  };
+
+  db.ref("careband/demo/sos")
+    .set(dataSOS)
+    .then(() => {
+      document.getElementById("sosStatus").innerText =
+        "SOS BERHASIL DIKIRIM! Petugas telah menerima sinyal darurat.";
+    })
+    .catch(error => {
+      document.getElementById("sosStatus").innerText =
+        "Gagal mengirim SOS: " + error.message;
+    });
+  }
 
 function buatPeta() {
 
