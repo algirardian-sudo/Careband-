@@ -3,142 +3,209 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CareBand - Sistem Pemantauan</title>
+<title>CareBand - Monitoring Lansia</title>
 
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
+  padding: 18px;
   font-family: Arial, sans-serif;
-  background: #f1f6f8;
-  color: #18343c;
+  background: #f1f5f9;
+  color: #172033;
 }
-header {
-  background: #087f8c;
-  color: white;
-  padding: 22px;
-  text-align: center;
-}
+
 .container {
-  max-width: 650px;
-  margin: 20px auto;
-  padding: 15px;
+  max-width: 600px;
+  margin: auto;
 }
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  color: #087f5b;
+  margin-bottom: 5px;
+}
+
 .card {
   background: white;
-  border-radius: 14px;
-  padding: 20px;
+  padding: 18px;
+  border-radius: 15px;
   margin-bottom: 15px;
-  box-shadow: 0 3px 12px #0001;
+  box-shadow: 0 3px 12px rgba(0,0,0,.07);
 }
+
 button {
-  border: 0;
-  border-radius: 9px;
-  padding: 13px;
-  background: #087f8c;
-  color: white;
-  font-size: 15px;
   width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
   margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #087f5b;
+  color: white;
+  cursor: pointer;
 }
+
 button.secondary {
-  background: #526b75;
+  background: #2563eb;
 }
+
+button.danger {
+  background: #dc2626;
+}
+
 .status {
   padding: 12px;
-  border-radius: 8px;
-  background: #e5f5f4;
-  margin: 10px 0;
+  border-radius: 9px;
+  background: #e2e8f0;
+  margin-top: 10px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
 }
-.value {
-  font-size: 26px;
-  font-weight: bold;
-  color: #087f8c;
-}
+
 #map {
-  height: 330px;
-  border-radius: 10px;
+  height: 350px;
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 12px;
 }
+
+.info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.info div {
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.nilai {
+  font-size: 24px;
+  font-weight: bold;
+  color: #087f5b;
+}
+
 .hidden {
   display: none;
 }
-.led {
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #aaa;
-  margin-right: 7px;
+
+small {
+  color: #64748b;
 }
+
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>CareBand</h1>
-  <p>Sistem Pemantauan dan Perlindungan Pengguna</p>
-</header>
-
 <div class="container">
 
-<div class="card" id="pilihan">
-  <h2>Pilih Mode</h2>
-  <button onclick="bukaPengguna()">Mode Pengguna</button>
-  <button class="secondary" onclick="bukaPetugas()">Mode Petugas</button>
+<header>
+  <h1>CAREBAND</h1>
+  <p>Sistem Monitoring dan Pemantauan Lansia</p>
+</header>
+
+<div class="card">
+  <h3>Pilih Mode Penggunaan</h3>
+
+  <button onclick="pilihPengguna()">
+    MODE PENGGUNA
+  </button>
+
+  <button class="secondary" onclick="pilihPetugas()">
+    MODE PETUGAS
+  </button>
+
+  <div id="status" class="status">
+    Menghubungkan ke sistem...
+  </div>
 </div>
 
-<div class="card hidden" id="pengguna">
-  <h2>Mode Pengguna</h2>
-  <div class="status" id="statusGPS">
-    GPS belum diaktifkan.
+<div id="pengguna" class="card hidden">
+  <h3>Mode Pengguna</h3>
+
+  <p>
+    HP ini berfungsi sebagai perangkat pengguna
+    yang mengirimkan lokasi GPS ke petugas.
+  </p>
+
+  <button onclick="mulaiGPS()">
+    MULAI BERBAGI LOKASI
+  </button>
+
+  <button class="danger" onclick="berhentiGPS()">
+    BERHENTI BERBAGI LOKASI
+  </button>
+
+  <div class="status" id="gpsStatus">
+    GPS belum dijalankan.
   </div>
 
-  <p>Lokasi GPS:</p>
-  <div id="koordinat">Belum tersedia</div>
-
-  <button onclick="mulaiGPS()">Aktifkan GPS Saya</button>
-  <button class="secondary" onclick="hentikanGPS()">Hentikan GPS</button>
-
-  <hr>
-
-  <h3>Detak Jantung</h3>
-  <div class="value">78 BPM</div>
-  <small>Data contoh — belum berasal dari sensor fisik.</small>
-
-  <hr>
-
-  <h3>Indikator LED</h3>
-  <p><span class="led" style="background:#19a85b"></span>Indikator normal (tampilan demo)</p>
-  <p><span class="led" style="background:#e74c3c"></span>Indikator peringatan (tampilan demo)</p>
-
-  <h3>Buzzer</h3>
-  <button class="secondary" onclick="ujiBuzzer()">Uji Bunyi Buzzer Demo</button>
-
-  <h3>Panel Surya</h3>
-  <p>Panel surya dirancang sebagai sumber energi pendukung gelang CareBand.</p>
-  <small>Ilustrasi konsep, belum terhubung ke panel fisik.</small>
+  <div class="status" id="koordinat">
+    Koordinat belum tersedia.
+  </div>
 </div>
 
-<div class="card hidden" id="petugas">
-  <h2>Mode Pemantauan Petugas</h2>
+<div id="petugas" class="card hidden">
+  <h3>Mode Petugas</h3>
 
-  <div class="status" id="statusPantau">
-    Menunggu data lokasi pengguna...
+  <p>
+    Petugas dapat melihat lokasi pengguna
+    yang mengirimkan GPS melalui CareBand.
+  </p>
+
+  <div class="status" id="monitorStatus">
+    Menunggu data lokasi...
   </div>
 
   <div id="map"></div>
 
-  <h3>Informasi Lokasi</h3>
-  <div id="lokasiPetugas">Belum ada data lokasi.</div>
+  <div class="status" id="waktu">
+    Waktu pembaruan: -
+  </div>
+</div>
 
-  <h3>Detak Jantung</h3>
-  <div class="value">78 BPM</div>
-  <small>Data contoh, bukan hasil pembacaan sensor.</small>
+<div class="card">
+  <h3>Informasi Monitoring</h3>
 
-  <button class="secondary" onclick="kembali()">Kembali</button>
+  <div class="info">
+    <div>
+      <small>Detak Jantung</small>
+      <div class="nilai" id="detak">-- BPM</div>
+      <small>Contoh tampilan demo</small>
+    </div>
+
+    <div>
+      <small>Status LED</small>
+      <div class="nilai" id="led">Hijau</div>
+      <small>Indikator demo</small>
+    </div>
+  </div>
+
+  <button class="secondary" onclick="tesBuzzer()">
+    TES BUZZER DEMO
+  </button>
+
+  <div class="status">
+    Catatan: detak jantung, LED, dan buzzer pada
+    halaman ini merupakan demonstrasi antarmuka.
+    Belum terhubung dengan sensor atau komponen fisik.
+  </div>
 </div>
 
 </div>
@@ -146,59 +213,279 @@ button.secondary {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAb6oGa4g_mf_2GUF6XIwSL2aGg58ntMMw",
+  apiKey: "AIzaSyAb6oGa4g_m_2GUF6XIwSL2aGg58ntMMw",
   authDomain: "ragaswara-12e71.firebaseapp.com",
-  databaseURL: "https://ragaswara-12e71-default-rtdb.asia-southeast1.firebasedatabase.app/",
   projectId: "ragaswara-12e71",
   storageBucket: "ragaswara-12e71.firebasestorage.app",
   messagingSenderId: "917122755551",
-  appId: "1:917122755551:web:310c28ca47e7abe659f26a"
+  appId: "1:917122755551:web:310c28ca47e7abe659f26a",
+  databaseURL: "https://ragaswara-12e71-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
+
+const statusEl = document.getElementById("status");
+
+let db = null;
+let gpsWatcher = null;
+let map = null;
+let marker = null;
+let lokasiListener = null;
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
-const db = firebase.database();
-const lokasiRef = db.ref("careband/demo/latest");
-
-let watchID = null;
-let map = null;
-let marker = null;
 
 auth.signInAnonymously()
-.catch(error => alert("Koneksi Firebase gagal: " + error.message));
+.then(() => {
+  db = firebase.database();
 
-function bukaPengguna() {
-  document.getElementById("pilihan").classList.add("hidden");
-  document.getElementById("pengguna").classList.remove("hidden");
+  statusEl.innerText =
+    "Terhubung ke Firebase. Sistem siap digunakan.";
+
+})
+.catch(error => {
+  statusEl.innerText =
+    "Gagal terhubung: " + error.message;
+});
+
+function pilihPengguna() {
+  document.getElementById("pengguna")
+    .classList.remove("hidden");
+
+  document.getElementById("petugas")
+    .classList.add("hidden");
 }
 
-function bukaPetugas() {
-  document.getElementById("pilihan").classList.add("hidden");
-  document.getElementById("petugas").classList.remove("hidden");
+function pilihPetugas() {
+  document.getElementById("petugas")
+    .classList.remove("hidden");
+
+  document.getElementById("pengguna")
+    .classList.add("hidden");
 
   setTimeout(() => {
-    if (!map) {
-      map = L.map("map").setView([-6.9, 107.6], 13);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap"
-      }).addTo(map);
-    }
-    map.invalidateSize();
+    buatPeta();
+    mulaiMonitoring();
   }, 300);
-
-  pantauLokasi();
-}
-
-function kembali() {
-  document.getElementById("petugas").classList.add("hidden");
-  document.getElementById("pengguna").classList.add("hidden");
-  document.getElementById("pilihan").classList.remove("hidden");
 }
 
 function mulaiGPS() {
-  if (!navigator.geolocation
+
+  if (!db) {
+    document.getElementById("gpsStatus").innerText =
+      "Firebase belum siap. Tunggu beberapa saat.";
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    document.getElementById("gpsStatus").innerText =
+      "Browser tidak mendukung GPS.";
+    return;
+  }
+
+  if (gpsWatcher !== null) {
+    return;
+  }
+
+  document.getElementById("gpsStatus").innerText =
+    "Meminta izin lokasi GPS...";
+
+  gpsWatcher = navigator.geolocation.watchPosition(
+
+    function(position) {
+
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      const dataLokasi = {
+        latitude: latitude,
+        longitude: longitude,
+        accuracy: position.coords.accuracy,
+        waktu: Date.now()
+      };
+
+      db.ref("careband/demo/latest")
+        .set(dataLokasi)
+        .then(() => {
+
+          document.getElementById("gpsStatus").innerText =
+            "GPS aktif. Lokasi berhasil dikirim.";
+
+          document.getElementById("koordinat").innerText =
+            "Latitude: " + latitude.toFixed(6) +
+            "\nLongitude: " + longitude.toFixed(6) +
+            "\nAkurasi: " +
+            Math.round(position.coords.accuracy) + " meter";
+
+        })
+        .catch(error => {
+
+          document.getElementById("gpsStatus").innerText =
+            "Gagal mengirim lokasi: " + error.message;
+
+        });
+
+    },
+
+    function(error) {
+
+      document.getElementById("gpsStatus").innerText =
+        "GPS gagal: " + error.message;
+
+      if (gpsWatcher !== null) {
+        navigator.geolocation.clearWatch(gpsWatcher);
+        gpsWatcher = null;
+      }
+
+    },
+
+    {
+      enableHighAccuracy: true,
+      maximumAge: 3000,
+      timeout: 20000
+    }
+
+  );
+}
+
+function berhentiGPS() {
+
+  if (gpsWatcher !== null) {
+
+    navigator.geolocation.clearWatch(gpsWatcher);
+    gpsWatcher = null;
+
+  }
+
+  document.getElementById("gpsStatus").innerText =
+    "Pengiriman lokasi dihentikan.";
+
+}
+
+function buatPeta() {
+
+  if (map !== null) {
+    map.invalidateSize();
+    return;
+  }
+
+  map = L.map("map").setView([-6.9, 107.6], 15);
+
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      attribution: "&copy; OpenStreetMap"
+    }
+  ).addTo(map);
+
+}
+
+function mulaiMonitoring() {
+
+  if (!db) {
+    document.getElementById("monitorStatus").innerText =
+      "Menunggu koneksi Firebase...";
+    return;
+  }
+
+  if (lokasiListener !== null) {
+    return;
+  }
+
+  const lokasiRef = db.ref("careband/demo/latest");
+
+  lokasiListener = lokasiRef.on("value", snapshot => {
+
+    const data = snapshot.val();
+
+    if (!data || !data.latitude || !data.longitude) {
+
+      document.getElementById("monitorStatus").innerText =
+        "Belum ada lokasi pengguna. Aktifkan Mode Pengguna di HP lain.";
+
+      return;
+    }
+
+    const posisi = [
+      data.latitude,
+      data.longitude
+    ];
+
+    document.getElementById("monitorStatus").innerText =
+      "Lokasi pengguna berhasil diterima.";
+
+    document.getElementById("waktu").innerText =
+      "Pembaruan terakhir: " +
+      new Date(data.waktu).toLocaleString("id-ID") +
+      "\nAkurasi GPS: " +
+      Math.round(data.accuracy || 0) + " meter";
+
+    if (map !== null) {
+
+      if (marker === null) {
+
+        marker = L.marker(posisi)
+          .addTo(map)
+          .bindPopup("Lokasi Pengguna CareBand");
+
+      } else {
+
+        marker.setLatLng(posisi);
+
+      }
+
+      map.setView(posisi, 17);
+
+    }
+
+  }, error => {
+
+    document.getElementById("monitorStatus").innerText =
+      "Gagal membaca lokasi: " + error.message;
+
+  });
+
+}
+
+function tesBuzzer() {
+
+  try {
+
+    const AudioContext =
+      window.AudioContext || window.webkitAudioContext;
+
+    const audio = new AudioContext();
+
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+
+    oscillator.frequency.value = 850;
+    gain.gain.value = 0.15;
+
+    oscillator.start();
+
+    setTimeout(() => {
+      oscillator.stop();
+      audio.close();
+    }, 500);
+
+  } catch (error) {
+
+    alert("Buzzer demo tidak dapat dijalankan.");
+
+  }
+
+}
+
+</script>
+
+</body>
+  </html>
