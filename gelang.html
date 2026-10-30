@@ -204,7 +204,11 @@ small {
   <div class="status" id="peringatanSOS">
     🟢 Tidak ada keadaan darurat.
   </div>
-
+  <button
+  class="secondary"
+  onclick="resetSOS()">
+  RESET STATUS DARURAT
+  </button>
   <hr>
 
   <h3>❤️ Detak Jantung Pengguna</h3>
@@ -451,6 +455,27 @@ function berhentiGPS() {
       document.getElementById("sosStatus").innerText =
         "Gagal mengirim SOS: " + error.message;
     });
+  }
+  function resetSOS() {
+
+  if (!db) return;
+
+  db.ref("careband/demo/sos").set({
+    status: "NORMAL",
+    pesan: "Status darurat telah direset oleh petugas.",
+    waktu: Date.now()
+  })
+  .then(() => {
+    document.getElementById("peringatanSOS").innerText =
+      "🟢 Tidak ada keadaan darurat.";
+
+    sosAktif = false;
+    perbaruiLED();
+  })
+  .catch(error => {
+    alert("Gagal reset SOS: " + error.message);
+  });
+
   }
   function kirimDetakJantung() {
 
