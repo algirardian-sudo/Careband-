@@ -598,18 +598,40 @@ function mulaiMonitoring() {
       return;
     }
 
-    tampilan.innerText =
-      "❤️ Detak Jantung: " + data.bpm + " BPM" +
+    const bpm = Number(data.bpm);
+
+    if (bpm < 50) {
+
+      tampilan.innerText =
+        "🔴 PERINGATAN!\n" +
+        "Detak jantung rendah: " + bpm + " BPM";
+
+    } else if (bpm > 120) {
+
+      tampilan.innerText =
+        "🔴 PERINGATAN!\n" +
+        "Detak jantung tinggi: " + bpm + " BPM";
+
+    } else {
+
+      tampilan.innerText =
+        "🟢 Kondisi normal (demo)\n" +
+        "Detak jantung: " + bpm + " BPM";
+
+    }
+
+    tampilan.innerText +=
       "\nWaktu pembaruan: " +
       new Date(data.waktu).toLocaleString("id-ID");
 
   }, error => {
 
-    tampilan.innerText =
+    document.getElementById("heartMonitor").innerText =
       "Gagal menerima data: " + error.message;
 
   });
   }
+
 
 function tesBuzzer() {
 
